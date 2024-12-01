@@ -5,7 +5,6 @@ interface Navigator {
 const InstallPWAButton: React.FC = () => {
   const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     // Verifica si la PWA ya está instalada
@@ -24,7 +23,6 @@ const InstallPWAButton: React.FC = () => {
       e.preventDefault();
       if (!isInstalled) {
         setInstallPrompt(e);
-        setIsVisible(true);
       }
     };
 
@@ -45,8 +43,7 @@ const InstallPWAButton: React.FC = () => {
         } else {
           console.log("PWA no instalada");
         }
-        setInstallPrompt(null);
-        setIsVisible(false);
+        setInstallPrompt(null)
       });
     }
   };
@@ -54,7 +51,6 @@ const InstallPWAButton: React.FC = () => {
 
   
   return (
-    !isInstalled && isVisible && (
     <div className="flex justify-center items-center  ">
       <button onClick={handleInstallClick} style={{ padding: "10px", fontSize: "16px" }} className="flex justify-center items-center flex-row bg-gray-500 text-white rounded w-[90%] mb-10">
         Instalar App &nbsp;
@@ -65,7 +61,7 @@ const InstallPWAButton: React.FC = () => {
       </button>
       
       </div>
-  ));
+  );
 };
 
 export default InstallPWAButton;
