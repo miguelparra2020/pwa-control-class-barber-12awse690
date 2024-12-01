@@ -1,35 +1,38 @@
 import React, { useEffect, useState } from "react";
 
 const InstallPWAButton: React.FC = () => {
-  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault(); // Evita que el navegador muestre automáticamente el prompt
-      setInstallPrompt(e);
+    const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+    const [isVisible, setIsVisible] = useState(false);
+  
+    useEffect(() => {
+      const handleBeforeInstallPrompt = (e: Event) => {
+        e.preventDefault(); // Evita que el navegador muestre automáticamente el prompt
+        setInstallPrompt(e);
+        setIsVisible(true); // Muestra el botón de instalación
+      };
+  
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+  
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      };
+    }, []);
+  
+    const handleInstallClick = () => {
+      if (installPrompt) {
+        (installPrompt as any).prompt(); // Muestra el cuadro de instalación
+        (installPrompt as any).userChoice.then((choiceResult: any) => {
+          if (choiceResult.outcome === "accepted") {
+            console.log("PWA instalada");
+          } else {
+            console.log("PWA no instalada");
+          }
+          setInstallPrompt(null);
+          setIsVisible(false); // Oculta el botón tras la acción
+        });
+      }
     };
-
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  const handleInstallClick = () => {
-    if (installPrompt) {
-      (installPrompt as any).prompt(); // Muestra el cuadro de instalación
-      (installPrompt as any).userChoice.then((choiceResult: any) => {
-        if (choiceResult.outcome === "accepted") {
-          console.log("PWA instalada");
-        } else {
-          console.log("PWA no instalada");
-        }
-        setInstallPrompt(null);
-      });
-    }
-  };
-
-  return (
+  return (isVisible && (
     <div className="flex justify-center items-center  ">
       <button onClick={handleInstallClick} style={{ padding: "10px", fontSize: "16px" }} className="flex justify-center items-center flex-row bg-gray-500 text-white rounded w-[90%] mb-10">
         Instalar App &nbsp;
@@ -40,7 +43,7 @@ const InstallPWAButton: React.FC = () => {
       </button>
       
       </div>
-  );
+  ));
 };
 
 export default InstallPWAButton;
