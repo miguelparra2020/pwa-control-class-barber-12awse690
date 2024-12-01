@@ -1,5 +1,5 @@
 import { defineConfig } from "astro/config"
-
+import react from '@astrojs/react';
 // Astro integration imports
 import tailwind from "@astrojs/tailwind"
 import sitemap from "@astrojs/sitemap"
@@ -12,6 +12,7 @@ import { manifest, seoConfig } from "./utils/seoConfig"
 export default defineConfig({
 	site: seoConfig.baseURL,
 	integrations: [
+		react(),
 		tailwind({
 			config: {
 				applyBaseStyles: false,
