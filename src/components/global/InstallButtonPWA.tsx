@@ -1,38 +1,60 @@
 import React, { useEffect, useState } from "react";
-
+interface Navigator {
+  standalone?: boolean;
+}
 const InstallPWAButton: React.FC = () => {
-    const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
-    const [isVisible, setIsVisible] = useState(false);
-  
-    useEffect(() => {
-      const handleBeforeInstallPrompt = (e: Event) => {
-        e.preventDefault(); // Evita que el navegador muestre automáticamente el prompt
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    // Verifica si la PWA ya está instalada
+    const checkIfInstalled = () => {
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches || 
+        (navigator as Navigator).standalone;
+      setIsInstalled(!!isStandalone);
+    };
+
+    // Comprueba el estado al cargar el componente
+    checkIfInstalled();
+
+    // Captura el evento beforeinstallprompt
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      if (!isInstalled) {
         setInstallPrompt(e);
-        setIsVisible(true); // Muestra el botón de instalación
-      };
-  
-      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-  
-      return () => {
-        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-      };
-    }, []);
-  
-    const handleInstallClick = () => {
-      if (installPrompt) {
-        (installPrompt as any).prompt(); // Muestra el cuadro de instalación
-        (installPrompt as any).userChoice.then((choiceResult: any) => {
-          if (choiceResult.outcome === "accepted") {
-            console.log("PWA instalada");
-          } else {
-            console.log("PWA no instalada");
-          }
-          setInstallPrompt(null);
-          setIsVisible(false); // Oculta el botón tras la acción
-        });
+        setIsVisible(true);
       }
     };
-  return (isVisible && (
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    };
+  }, [isInstalled]);
+
+  const handleInstallClick = () => {
+    if (installPrompt) {
+      (installPrompt as any).prompt();
+      (installPrompt as any).userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === "accepted") {
+          console.log("PWA instalada");
+          setIsInstalled(true);
+        } else {
+          console.log("PWA no instalada");
+        }
+        setInstallPrompt(null);
+        setIsVisible(false);
+      });
+    }
+  };
+
+
+  
+  return (
+    !isInstalled && isVisible && (
     <div className="flex justify-center items-center  ">
       <button onClick={handleInstallClick} style={{ padding: "10px", fontSize: "16px" }} className="flex justify-center items-center flex-row bg-gray-500 text-white rounded w-[90%] mb-10">
         Instalar App &nbsp;
